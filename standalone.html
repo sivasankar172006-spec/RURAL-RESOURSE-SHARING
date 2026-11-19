@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriFlow - Smart Agricultural Water Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #15803d;
+      --primary-dark: #166534;
+      --primary-bg: #f0fdf4;
+      --accent: #0284c7;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; }
+    .nav { display: flex; gap: 16px; align-items: center; padding: 14px 28px; background: linear-gradient(135deg, #14532d 0%, #166534 100%); color: white; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+    .nav a { color: #bbf7d0; text-decoration: none; font-weight: 600; font-size: 0.92rem; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .nav a:hover { color: white; background: rgba(255,255,255,0.12); }
+    .nav .logo { font-size: 1.25rem; font-weight: 800; color: white; margin-right: 12px; display: flex; align-items: center; gap: 6px; }
+    .nav button.logout-btn { margin-left: auto; background: #ef4444; border: none; color: white; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 700; }
+    main { padding: 28px 36px; max-width: 1360px; margin: 0 auto; width: 100%; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 1.85rem; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; }
+    .page-header p { color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
+    .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 28px; }
+    .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 16px; }
+    .stat-card.blue { border-left-color: var(--accent); }
+    .stat-card.amber { border-left-color: var(--warning); }
+    .stat-card.red { border-left-color: var(--danger); }
+    .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: var(--primary-bg); }
+    .stat-info h3 { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.6px; font-weight: 700; margin-bottom: 4px; }
+    .stat-info .num { font-size: 1.75rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 24px; margin-bottom: 28px; }
+    .chart-card { background: white; padding: 22px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+    .chart-card h2 { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .farmers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; margin-top: 16px; }
+    .farmer-card { background: white; padding: 18px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between; gap: 12px; }
+    .farmer-id-badge { font-size: 0.75rem; font-weight: 700; color: var(--primary); background: var(--primary-bg); padding: 3px 8px; border-radius: 4px; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-yellow { background: #fef3c7; color: #b45309; }
+    .badge-red { background: #fee2e2; color: #b91c1c; }
+    .progress-bar-container { background: #f1f5f9; border-radius: 6px; height: 8px; width: 100%; overflow: hidden; margin: 6px 0; }
+    .progress-bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s ease; }
+    input, select { font-family: inherit; padding: 9px 13px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: white; outline: none; }
+    button.btn-primary { background: var(--primary); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
+    button.btn-primary:hover { background: var(--primary-dark); }
+    .live-sensor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .live-sensor-card { background: white; padding: 18px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
+    .live-sensor-card .sensor-val { font-size: 2rem; font-weight: 800; margin: 6px 0; letter-spacing: -0.5px; }
+    .live-sensor-card .sensor-lbl { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 6px; }
+    .success-toast { position: fixed; bottom: 24px; right: 24px; background: #166534; color: white; padding: 14px 20px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 999; }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const FARMERS = [
+  { farmerId:'FRM-1001', name:'Ram Kumar',     phone:'981000001', latitude:26.8467, longitude:80.9462, farmSize:2.5, cropType:'Wheat',     cropStage:'Mature',        tankCapacity:8000, currentWater:5000, soilMoisture:65 },
+  { farmerId:'FRM-1002', name:'Sita Devi',     phone:'981000002', latitude:26.8490, longitude:80.9500, farmSize:1.2, cropType:'Tomato',    cropStage:'Flowering',     tankCapacity:2000, currentWater:800,  soilMoisture:22 },
+  { farmerId:'FRM-1003', name:'Mohit Singh',   phone:'981000003', latitude:26.8400, longitude:80.9400, farmSize:3.0, cropType:'Maize',     cropStage:'Vegetative',    tankCapacity:6000, currentWater:3500, soilMoisture:70 },
+  { farmerId:'FRM-1004', name:'Geeta Patel',   phone:'981000004', latitude:26.8550, longitude:80.9600, farmSize:1.8, cropType:'Rice',      cropStage:'Transplanting', tankCapacity:3000, currentWater:600,  soilMoisture:18 },
+  { farmerId:'FRM-1005', name:'Ramesh Yadav',  phone:'981000005', latitude:26.8420, longitude:80.9480, farmSize:2.2, cropType:'Sugarcane', cropStage:'Growing',      tankCapacity:7000, currentWater:4200, soilMoisture:60 },
+];
+
+const TRANSACTIONS = {
+  'FRM-1001': [{txId:'TX-901', status:'Completed', requestedAmount:1500, actualAmount:1500}],
+  'FRM-1002': [{txId:'TX-902', status:'Completed', requestedAmount:1200, actualAmount:1200}],
+  'FRM-1003': [],
+  'FRM-1004': [{txId:'TX-904', status:'Requested', requestedAmount:900, actualAmount:null}],
+  'FRM-1005': [],
+};
+
+const USERS = [{ email:'admin@example.com', password:'password', name:'Admin' }];
+function getToken(){ return sessionStorage.getItem('agriflow_token') || 'demo' }
+function setToken(t){ sessionStorage.setItem('agriflow_token', t) }
+function clearToken(){ sessionStorage.removeItem('agriflow_token') }
+
+function navigate(hash){ location.hash = hash; render() }
+window.addEventListener('hashchange', render)
+window.addEventListener('load', render)
+
+function h(tag, attrs, ...children){
+  const el = document.createElement(tag)
+  for(const [k,v] of Object.entries(attrs||{})){
+    if(k.startsWith('on')) el[k]=v
+    else if(k==='className') el.className=v
+    else el.setAttribute(k,v)
+  }
+  for(const c of children.flat()) if(c!=null) el.append(typeof c==='string'? document.createTextNode(c) : c)
+  return el
+}
+
+function showToast(msg){
+  const t = h('div',{className:'success-toast'},msg)
+  document.body.appendChild(t)
+  setTimeout(()=>t.remove(), 3500)
+}
+
+function renderNav(){
+  const token = getToken()
+  return h('nav',{className:'nav'},
+    h('span',{className:'logo'},'🌾 AgriFlow'),
+    h('a',{onclick:()=>navigate('#/')},'Dashboard'),
+    h('a',{onclick:()=>navigate('#/match')},'Smart Match'),
+    h('a',{onclick:()=>navigate('#/monitor')},'Sensors'),
+    h('button',{className:'logout-btn',onclick:()=>{ clearToken(); navigate('#/login') }},'Logout')
+  )
+}
+
+function renderSVGBarChart(data, keys, colors){
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg')
+  svg.setAttribute('width','100%')
+  svg.setAttribute('height','250')
+  svg.setAttribute('viewBox','0 0 500 250')
+
+  const max = Math.max(...data.map(d=> Math.max(...keys.map(k=>d[k])))) || 1
+  const barWidth = 24
+  const groupWidth = 500 / data.length
+
+  data.forEach((d, i)=>{
+    const x = i * groupWidth + 20
+    keys.forEach((k, ki)=>{
+      const hVal = (d[k] / max) * 180
+      const rect = document.createElementNS('http://www.w3.org/2000/svg','rect')
+      rect.setAttribute('x', x + ki * (barWidth + 4))
+      rect.setAttribute('y', 210 - hVal)
+      rect.setAttribute('width', barWidth)
+      rect.setAttribute('height', hVal)
+      rect.setAttribute('fill', colors[ki])
+      rect.setAttribute('rx', '4')
+      svg.appendChild(rect)
+    })
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text')
+    text.setAttribute('x', x + 20)
+    text.setAttribute('y', 232)
+    text.setAttribute('text-anchor', 'middle')
+    text.setAttribute('font-size', '11')
+    text.setAttribute('fill', '#64748b')
+    text.textContent = d.name.split(' ')[0]
+    svg.appendChild(text)
+  })
+  return svg
+}
+
+function renderSVGAreaChart(data, key, color){
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg')
+  svg.setAttribute('width','100%')
+  svg.setAttribute('height','250')
+  svg.setAttribute('viewBox','0 0 500 250')
+
+  const max = Math.max(...data.map(d=>d[key])) || 1
+  const step = 460 / (data.length - 1 || 1)
+
+  let pathD = `M 20 ${210 - (data[0][key]/max)*170}`
+  data.forEach((d,i)=>{
+    if(i>0){
+      const x = 20 + i*step
+      const y = 210 - (d[key]/max)*170
+      pathD += ` L ${x} ${y}`
+    }
+  })
+
+  const fillD = pathD + ` L ${20 + (data.length-1)*step} 210 L 20 210 Z`
+  const fillPath = document.createElementNS('http://www.w3.org/2000/svg','path')
+  fillPath.setAttribute('d', fillD)
+  fillPath.setAttribute('fill', color)
+  fillPath.setAttribute('opacity', '0.18')
+  svg.appendChild(fillPath)
+
+  const strokePath = document.createElementNS('http://www.w3.org/2000/svg','path')
+  strokePath.setAttribute('d', pathD)
+  strokePath.setAttribute('fill', 'none')
+  strokePath.setAttribute('stroke', color)
+  strokePath.setAttribute('stroke-width', '3')
+  svg.appendChild(strokePath)
+
+  data.forEach((d,i)=>{
+    const x = 20 + i*step
+    const y = 210 - (d[key]/max)*170
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle')
+    circle.setAttribute('cx', x)
+    circle.setAttribute('cy', y)
+    circle.setAttribute('r', '4')
+    circle.setAttribute('fill', color)
+    svg.appendChild(circle)
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text')
+    text.setAttribute('x', x)
+    text.setAttribute('y', 230)
+    text.setAttribute('text-anchor', 'middle')
+    text.setAttribute('font-size', '10')
+    text.setAttribute('fill', '#64748b')
+    text.textContent = d.hour || d.name
+    svg.appendChild(text)
+  })
+
+  return svg
+}
+
+function pageDashboard(){
+  const totalWater = FARMERS.reduce((s,f)=>s+f.currentWater,0)
+  const totalCapacity = FARMERS.reduce((s,f)=>s+f.tankCapacity,0)
+  const excess = FARMERS.filter(f=>f.currentWater > f.tankCapacity*0.5).length
+  const needs = FARMERS.filter(f=>f.soilMoisture < 30).length
+
+  const stats = h('div',{className:'stat-grid'},
+    h('div',{className:'stat-card'}, h('div',{className:'stat-icon'},'👨‍🌾'), h('div',{className:'stat-info'}, h('h3',{},'Farmers'), h('div',{className:'num'},''+FARMERS.length))),
+    h('div',{className:'stat-card blue'}, h('div',{className:'stat-icon',style:'background:#e0f2fe'},'💧'), h('div',{className:'stat-info'}, h('h3',{},'Water Reserve'), h('div',{className:'num'}, totalWater.toLocaleString()+' L'))),
+    h('div',{className:'stat-card amber'}, h('div',{className:'stat-icon',style:'background:#fef3c7'},'🌱'), h('div',{className:'stat-info'}, h('h3',{},'Surplus Donors'), h('div',{className:'num'},''+excess))),
+    h('div',{className:'stat-card red'}, h('div',{className:'stat-icon',style:'background:#fee2e2'},'⚠️'), h('div',{className:'stat-info'}, h('h3',{},'Moisture Alerts'), h('div',{className:'num'},''+needs)))
+  )
+
+  const chart1 = h('div',{className:'chart-card'},
+    h('h2',{}, h('span',{},'💧 Storage vs Capacity (L)'), h('span',{style:'font-size:0.75rem;color:#64748b'},'All Farmers')),
+    renderSVGBarChart(FARMERS, ['currentWater','tankCapacity'], ['#0284c7','#cbd5e1'])
+  )
+
+  const chart2 = h('div',{className:'chart-card'},
+    h('h2',{}, h('span',{},'🌡️ Soil Moisture Levels (%)'), h('span',{style:'font-size:0.75rem;color:#15803d'},'Target >50%')),
+    renderSVGBarChart(FARMERS, ['soilMoisture'], ['#22c55e'])
+  )
+
+  const farmersCards = h('div',{className:'farmers-grid'},
+    ...FARMERS.map(f=>{
+      const fillPct = Math.round((f.currentWater/f.tankCapacity)*100)
+      const st = f.soilMoisture < 30 ? 'red' : f.soilMoisture < 50 ? 'yellow' : 'green'
+      return h('div',{className:'farmer-card'},
+        h('div',{},
+          h('div',{style:'display:flex;justify-content:space-between;align-items:flex-start'},
+            h('div',{}, h('span',{className:'farmer-id-badge'},f.farmerId), h('h3',{style:'margin-top:4px'},f.name)),
+            h('span',{className:`badge badge-${st}`}, f.soilMoisture<30?'⚠️ Low Moisture':'✅ Optimal')
+          ),
+          h('div',{style:'margin-top:10px;font-size:0.85rem;color:#475569'},
+            h('div',{style:'display:flex;justify-content:space-between'}, h('span',{},'Water Tank: '+f.currentWater.toLocaleString()+' L'), h('span',{},fillPct+'%')),
+            h('div',{className:'progress-bar-container'}, h('div',{className:'progress-bar-fill',style:`width:${fillPct}%;background:#0284c7`})),
+            h('div',{style:'display:flex;justify-content:space-between;margin-top:4px'}, h('span',{},'Soil Moisture:'), h('span',{style:`color:${st==='red'?'#ef4444':'#15803d'};font-weight:700`},f.soilMoisture+'%')),
+            h('div',{className:'progress-bar-container'}, h('div',{className:'progress-bar-fill',style:`width:${f.soilMoisture}%;background:${st==='red'?'#ef4444':'#22c55e'}`}))
+          )
+        ),
+        h('a',{onclick:()=>navigate('#/farmer/'+f.farmerId),style:'color:#15803d;font-weight:700;cursor:pointer;font-size:0.88rem;text-align:right'},'View Profile →')
+      )
+    })
+  )
+
+  return h('div',{},
+    h('div',{className:'page-header'}, h('h1',{},'🌾 AgriFlow Analytics Dashboard'), h('p',{},'Smart irrigation & telemetry analytics platform')),
+    stats,
+    h('div',{className:'charts-grid'}, chart1, chart2),
+    h('h2',{style:'margin-bottom:12px'},'Registered Farmers Overview'),
+    farmersCards
+  )
+}
+
+function pageFarmerProfile(id){
+  const f = FARMERS.find(f=>f.farmerId===id)
+  if(!f) return h('div',{},h('p',{},'Farmer not found.'))
+  const fillPct = Math.round((f.currentWater/f.tankCapacity)*100)
+  const st = f.soilMoisture < 30 ? 'red' : f.soilMoisture < 50 ? 'yellow' : 'green'
+
+  const hourly = [
+    {hour:'06:00', water:Math.round(f.currentWater*0.92)},
+    {hour:'10:00', water:Math.round(f.currentWater*0.96)},
+    {hour:'14:00', water:Math.round(f.currentWater*0.88)},
+    {hour:'18:00', water:Math.round(f.currentWater*0.98)},
+    {hour:'Now',   water:f.currentWater}
+  ]
+
+  return h('div',{},
+    h('a',{onclick:()=>navigate('#/'),style:'color:#15803d;cursor:pointer;font-weight:700;font-size:0.9rem'},'← Back to Dashboard'),
+    h('div',{className:'page-header',style:'margin-top:14px'},
+      h('span',{className:'farmer-id-badge'},f.farmerId),
+      h('h1',{style:'margin-top:4px'},f.name),
+      h('p',{},`Crop: ${f.cropType} (${f.cropStage}) | Location: ${f.latitude}, ${f.longitude}`)
+    ),
+    h('div',{className:'stat-grid'},
+      h('div',{className:'stat-card blue'}, h('div',{className:'stat-icon'},'💧'), h('div',{className:'stat-info'}, h('h3',{},'Current Storage'), h('div',{className:'num'},f.currentWater.toLocaleString()+' L'))),
+      h('div',{className:`stat-card ${st==='red'?'red':'amber'}`}, h('div',{className:'stat-icon'},'🌡️'), h('div',{className:'stat-info'}, h('h3',{},'Soil Moisture'), h('div',{className:'num'},f.soilMoisture+'%'))),
+      h('div',{className:'stat-card'}, h('div',{className:'stat-icon'},'🌾'), h('div',{className:'stat-info'}, h('h3',{},'Farm Area'), h('div',{className:'num'},f.farmSize+' ha')))
+    ),
+    h('div',{className:'chart-card',style:'margin-bottom:20px'},
+      h('h2',{},'24h Water Storage Telemetry Curve'),
+      renderSVGAreaChart(hourly, 'water', '#0284c7')
+    )
+  )
+}
+
+function pageSensorMonitor(){
+  const history = [
+    {hour:'12:00', val: 50}, {hour:'12:02', val: 52}, {hour:'12:04', val: 51}, {hour:'12:06', val: 53}, {hour:'12:08', val: 54}
+  ]
+  return h('div',{},
+    h('div',{className:'page-header'}, h('h1',{},'📡 Live IoT Sensor Monitor'), h('p',{},'Real-time streaming probe telemetry')),
+    h('div',{className:'live-sensor-grid'},
+      h('div',{className:'live-sensor-card',style:'border-top:4px solid #0284c7'}, h('div',{style:'font-size:1.8rem'},'💧'), h('div',{className:'sensor-val',style:'color:#0284c7'},'4,850 L'), h('div',{className:'sensor-lbl'},'Water Tank Depth')),
+      h('div',{className:'live-sensor-card',style:'border-top:4px solid #22c55e'}, h('div',{style:'font-size:1.8rem'},'🌡️'), h('div',{className:'sensor-val',style:'color:#15803d'},'65%'), h('div',{className:'sensor-lbl'},'Soil Hydration')),
+      h('div',{className:'live-sensor-card',style:'border-top:4px solid #8b5cf6'}, h('div',{style:'font-size:1.8rem'},'🔄'), h('div',{className:'sensor-val',style:'color:#8b5cf6'},'14.2 L/min'), h('div',{className:'sensor-lbl'},'Flow Velocity')),
+      h('div',{className:'live-sensor-card',style:'border-top:4px solid #f59e0b'}, h('div',{style:'font-size:1.8rem'},'☀️'), h('div',{className:'sensor-val',style:'color:#f59e0b'},'28.4°C'), h('div',{className:'sensor-lbl'},'Ambient Temp'))
+    ),
+    h('div',{className:'chart-card'},
+      h('h2',{},'Live Probe Hydration Trend'),
+      renderSVGAreaChart(history, 'val', '#15803d')
+    )
+  )
+}
+
+function pageSmartMatch(){
+  return h('div',{},
+    h('div',{className:'page-header'}, h('h1',{},'💧 Smart Water Matching Engine'), h('p',{},'Geospatial proximity pairing algorithm')),
+    h('div',{className:'card',style:'margin-bottom:20px;display:flex;gap:12px;align-items:center'},
+      h('strong',{},'Deficit Farm:'),
+      h('span',{},'FRM-1002 — Sita Devi (Tomato, 22% Moisture)')
+    ),
+    ...FARMERS.filter(f=>f.farmerId!=='FRM-1002' && f.currentWater > f.tankCapacity*0.5).map(d=>
+      h('div',{className:'card',style:'display:flex;justify-content:space-between;align-items:center;margin-top:12px'},
+        h('div',{},
+          h('strong',{style:'font-size:1.1rem'},`${d.farmerId} — ${d.name}`),
+          h('p',{style:'color:#64748b;font-size:0.9rem;margin-top:4px'},`Surplus Reserve: ${d.currentWater - d.tankCapacity*0.2} L | Crop: ${d.cropType}`)
+        ),
+        h('button',{className:'btn-primary',onclick:()=>showToast(`✅ Transferred 1,500 L from ${d.farmerId} to FRM-1002!`)},'🚀 Start Transfer (1,500 L)')
+      )
+    )
+  )
+}
+
+function render(){
+  const app = document.getElementById('app')
+  const hash = location.hash || '#/'
+  const fMatch = hash.match(/^#\/farmer\/(.+)$/)
+
+  let page
+  if (hash === '#/') page = pageDashboard()
+  else if (fMatch) page = pageFarmerProfile(fMatch[1])
+  else if (hash === '#/match') page = pageSmartMatch()
+  else if (hash === '#/monitor') page = pageSensorMonitor()
+  else page = pageDashboard()
+
+  app.innerHTML = ''
+  app.append(renderNav(), h('main',{},page))
+}
+</script>
+</body>
+</html>
